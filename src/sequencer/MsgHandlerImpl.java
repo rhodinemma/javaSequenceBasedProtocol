@@ -16,6 +16,6 @@ public class MsgHandlerImpl implements Group.MsgHandler {
     public void handle(int count, byte[] msg) {
         String mg = new String(msg);
         String[] mgs = mg.split(" ");
-        System.out.println("Message received is: " + mgs[0] + ", its unique ID is " + mgs[1] + " its sequence number is " + mgs[2]);
+        System.out.println("Message received is: " + mgs[0]);
     }
 }

@@ -20,12 +20,13 @@ public class SequencerImpl extends UnicastRemoteObject implements Sequencer {
     InetAddress groupAddress;
     MulticastSocket multicastSocket;
 
-    public static String groupIPAddress = "230.0.0.0";
+    public static String groupIPAddress = "224.6.7.8";
     @Serial
     private static final long serialVersionUID = 1L;
     final int port = 5554;
     final int maxMessageLength = 1024;
     int sequenceNumber;
+    public static InetAddress host;
 
     public SequencerImpl(String groupIPAddress) throws IOException {
         SequencerImpl.groupIPAddress = groupIPAddress;
@@ -67,15 +68,18 @@ public class SequencerImpl extends UnicastRemoteObject implements Sequencer {
 
     @Override
     public void send(String sender, byte[] msg, long msgID, long lastSequenceReceived) throws RemoteException {
+        System.out.println(sender);
         try {
+            host = InetAddress.getByName(sender);
+
             // Marshalling the data
             ByteArrayOutputStream bstream = new ByteArrayOutputStream(maxMessageLength);
             DataOutputStream dstream = new DataOutputStream(bstream);
 
-            dstream.writeLong(++sequenceNumber);
+            dstream.writeLong(lastSequenceReceived++);
             dstream.write(msg, 0, msg.length);
 
-            DatagramPacket message = new DatagramPacket(bstream.toByteArray(), bstream.size(), groupAddress, port);
+            DatagramPacket message = new DatagramPacket(bstream.toByteArray(), bstream.size(), host, port);
             multicastSocket.send(message);
         } catch (Exception ex) {
             System.out.println("Couldn't send message because" + ex);
@@ -114,13 +118,13 @@ public class SequencerImpl extends UnicastRemoteObject implements Sequencer {
     }
 
     // helper function to retrieve messages
-//    public void receive() throws IOException {
-//        byte[] buffer = new byte[maxMessageLength];
-//
-//        DatagramPacket messageIn = new DatagramPacket(buffer, buffer.length);
-//        multicastSocket.receive(messageIn);
-//
-//        String receivedMessage = new String(messageIn.getData());
-//        System.out.println(receivedMessage);
-//    }
+    public void receive() throws IOException {
+        byte[] buffer = new byte[maxMessageLength];
+
+        DatagramPacket messageIn = new DatagramPacket(buffer, buffer.length);
+        multicastSocket.receive(messageIn);
+
+        String receivedMessage = new String(messageIn.getData());
+        System.out.println(receivedMessage);
+    }
 }

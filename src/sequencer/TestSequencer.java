@@ -27,7 +27,13 @@ public class TestSequencer extends MsgHandlerImpl implements Group.MsgHandler,Ru
     }
 
     public static void main(String[] args) {
-        TestSequencer ts = new TestSequencer("230.0.0.0","Fred");
+        if(args.length<2){
+            System.out.println("we need more arguments");
+
+        }else{
+            TestSequencer ts = new TestSequencer(args[0],args[1]);
+        }
+//        TestSequencer ts = new TestSequencer("192.168.43.165","Fred");
     }
 
     public void run(){

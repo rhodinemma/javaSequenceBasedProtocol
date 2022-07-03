@@ -5,6 +5,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.Serial;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.util.Arrays;
@@ -26,6 +27,7 @@ public class Group implements Runnable {
     Thread heartBeater;
     MsgHandlerImpl handler;
     DatagramSocket socket;
+    public static String groupIPAddress = "224.6.7.8";
 
     public Group(String host, MsgHandlerImpl handler, String senderName) throws IOException, NotBoundException, SequencerException {
         lastSequenceRecd=-1L;
@@ -52,7 +54,7 @@ public class Group implements Runnable {
         multicastSock = new MulticastSocket(5554);
 
         //join group
-        multicastSock.joinGroup(new InetSocketAddress(InetAddress.getByName("230.0.0.0"), 5554), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+        multicastSock.joinGroup(new InetSocketAddress(InetAddress.getByName("224.6.7.8"), 5554), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
 
         this.handler = handler;
 
@@ -68,10 +70,24 @@ public class Group implements Runnable {
         //check if there is a global/multicasting socket specified
         if(multicastSock!=null) {
             try{
+                Sequencer sequencer = (Sequencer) Naming.lookup("//localhost/Sequencer");
+
                 //send the message to the sequencer so that it is marshalled.
                 ++lastSequenceSent;
+                // Create a string from the byte array with "UTF-8" encoding
+                String string = new String(msg);
+                System.out.println(string);
                 System.out.println("Message contains " + myAddress + "," + Arrays.toString(msg) + "," + lastSequenceSent + "," + lastSequenceRecd);
-                sequencer.send(myAddress,msg,lastSequenceSent,lastSequenceRecd);
+                sequencer.send(groupIPAddress,msg,lastSequenceSent,lastSequenceRecd);
+
+                /*++lastSequenceSent;
+                String str = new String(msg);
+                String[] strArr = str.split(" ");  //split message received from client into constituents for special treatment
+                byte[] msgStr = strArr[0].getBytes();
+                long msgID = Long.parseLong(String.valueOf(lastSequenceSent));
+                long msgSeq = Long.parseLong(String.valueOf(lastSequenceRecd));
+                sequencer.send(groupIPAddress, msgStr, msgID, msgSeq);*/
+
                 //change the last send time to long
                 lastSendTime=(new Date()).getTime();
             }catch(Exception e){
