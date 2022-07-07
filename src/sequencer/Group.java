@@ -106,8 +106,9 @@ public class Group implements Runnable {
         if(multicastSock!=null)
         {
             try{
+                Sequencer sequencer = (Sequencer) Naming.lookup("//localhost/Sequencer");
                 socket = new DatagramSocket();
-                multicastSock.leaveGroup(new InetSocketAddress(InetAddress.getByName("230.0.0.0"), 5554), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
+                multicastSock.leaveGroup(new InetSocketAddress(InetAddress.getByName("224.6.7.8"), 5554), NetworkInterface.getByInetAddress(InetAddress.getLocalHost()));
                 sequencer.leave(myAddress);
             }catch(Exception e){System.out.println("Couldn't leave group " + e);}
         }

@@ -68,7 +68,7 @@ public class SequencerImpl extends UnicastRemoteObject implements Sequencer {
 
     @Override
     public void send(String sender, byte[] msg, long msgID, long lastSequenceReceived) throws RemoteException {
-        System.out.println(sender);
+//        System.out.println(sender);
         try {
             host = InetAddress.getByName(sender);
 
@@ -80,6 +80,7 @@ public class SequencerImpl extends UnicastRemoteObject implements Sequencer {
             dstream.write(msg, 0, msg.length);
 
             DatagramPacket message = new DatagramPacket(bstream.toByteArray(), bstream.size(), host, port);
+            System.out.println(message);
             multicastSocket.send(message);
         } catch (Exception ex) {
             System.out.println("Couldn't send message because" + ex);
